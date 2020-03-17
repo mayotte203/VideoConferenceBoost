@@ -86,11 +86,12 @@ void senderThreadFunction(boost::asio::ip::tcp::socket* socket, std::mutex* sock
     }
 }
 
-void imagePacketFunction(sf::Texture *texture, PacketTransceiver *packetTr, std::mutex *textureMutex, std::condition_variable *condVar, MicrophoneStream *micStream)
+void imagePacketFunction(sf::Texture *texture, PacketTransceiver *packetTr, std::mutex *textureMutex, MicrophoneStream *micStream)
 {
     sf::Image image;
     sf::SoundBuffer buffer;
     sf::Sound sound(buffer);
+    std::condition_variable* condVar = packetTr->getReceiveCondVar();
     while (true)
     {
         std::unique_lock<std::mutex> lock(*textureMutex); 
@@ -121,7 +122,7 @@ void imagePacketFunction(sf::Texture *texture, PacketTransceiver *packetTr, std:
                     /*sound.stop();
                     buffer.loadFromSamples(reinterpret_cast<sf::Int16*>(imagePacket.data()), imagePacket.size() / 2, 1, 44100);
                     sound.play();*/
-                    micStream->addSamples(imagePacket);
+                    micStream->addSamples(std::move(imagePacket));
                     if (micStream->getStatus() != sf::SoundSource::Playing)
                     {
                         micStream->stop();
@@ -194,13 +195,12 @@ int main()
     //std::thread receiverThread(receiverThreadFunction, &socket, &socketMutex, &receiveBuf, &receiveMutex, &receiveReady);
 
     std::condition_variable condVar;
-    PacketTransceiver packetTr(&socket, &condVar);
+    PacketTransceiver packetTr(&socket);
     std::mutex textureMutex;
     MicrophoneStream micStream;
-    std::thread videoThread(imagePacketFunction, &texture1, &packetTr, &textureMutex, &condVar, &micStream);
+    std::thread videoThread(imagePacketFunction, &texture1, &packetTr, &textureMutex, &micStream);
     MicrophoneRecorder micRecorder(&packetTr);
     micRecorder.start();
-    std::cout << micRecorder.getSampleRate() << std::endl;
     while (window.isOpen())
     {
         sf::Event event;
@@ -218,7 +218,7 @@ int main()
         renderTexture.display();
         image = renderTexture.getTexture().copyToImage();
 #else
-        WebcamVC >> WebcamMat;
+        WebcamVC.read(WebcamMat);
         cv::cvtColor(WebcamMat, frameRGBA, cv::COLOR_BGR2RGBA);
         image.create(frameRGBA.cols, frameRGBA.rows, frameRGBA.ptr());
 #endif // SINGLE_PC
@@ -237,11 +237,11 @@ int main()
         cv::cvtColor(imageMat, frameRGB, cv::COLOR_RGBA2BGR);
         cv::imencode(".jpg", frameRGB, sendBuf);
 #else
-        cv::imencode(".jpg", WebcamMat, sendBuf);
+        cv::imencode(".jpg", WebcamMat, sendBuf, std::vector<int>{cv::IMWRITE_JPEG_QUALITY, 70});
 #endif //SINGLE_PC
 
         sendBuf.push_back(PacketType::Image);
-        packetTr.sendPacket(sendBuf);
+        packetTr.sendPacket(std::move(sendBuf));
     }
 
     return 0;
