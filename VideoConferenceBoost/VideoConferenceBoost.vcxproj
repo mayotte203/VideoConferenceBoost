@@ -154,14 +154,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="IPacketEndpoint.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MicrophoneRecorder.cpp" />
     <ClCompile Include="MicrophoneStream.cpp" />
+    <ClCompile Include="PacketRouter.cpp" />
     <ClCompile Include="PacketTransceiver.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IPacketEndpoint.h" />
     <ClInclude Include="MicrophoneRecorder.h" />
     <ClInclude Include="MicrophoneStream.h" />
+    <ClInclude Include="PacketRouter.h" />
     <ClInclude Include="PacketTransceiver.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>

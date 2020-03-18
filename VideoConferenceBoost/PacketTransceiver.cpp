@@ -1,4 +1,5 @@
 #include "PacketTransceiver.h"
+#include <iostream>
 
 PacketTransceiver::PacketTransceiver(boost::asio::ip::tcp::socket* socket)
 {
@@ -56,8 +57,6 @@ void PacketTransceiver::senderThreadFunction()
             size_t sendSize = sendBuf.size();
             boost::asio::write(*socket, boost::asio::buffer(&sendSize, sizeof(size_t)));
             boost::asio::write(*socket, boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
-            //socket->send(boost::asio::buffer(&sendSize, sizeof(size_t)));
-            //socket->send(boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
         }
     }
 }
@@ -91,12 +90,7 @@ void PacketTransceiver::receiverThreadFunction()
             receiverQueue.push(std::vector<uchar>(receiveBuf + skipBytes + sizeof(size_t), receiveBuf + skipBytes + sizeof(size_t) + packetSize));
             receiverMutex.unlock();
             receiveCondition.notify_one();
-            /*for (size_t i = 0; i < ((bufReceiveSize - packetSize) - sizeof(size_t)); ++i)
-            {
-                receiveBuf[i] = receiveBuf[i + packetSize + sizeof(size_t)];
-            }*/
             skipBytes += packetSize + sizeof(size_t);
-            //bufReceiveSize = bufReceiveSize - packetSize - sizeof(size_t);
             packetSize = *(reinterpret_cast<size_t*>(receiveBuf + skipBytes));
         }
         if (skipBytes > 0)

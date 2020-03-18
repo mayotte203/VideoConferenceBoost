@@ -1,6 +1,5 @@
 #pragma once
 #include <boost/asio.hpp>
-#include <iostream>
 #include <thread>
 #include <mutex>
 #include <vector>
@@ -27,7 +26,6 @@ private:
 	std::thread receiverThread;
 	std::mutex senderMutex;
 	std::mutex receiverMutex;
-	std::vector<uchar> receivedPacket;
 	std::queue<std::vector<uchar>> receiverQueue;
 	std::queue<std::vector<uchar>> senderQueue;
 	void senderThreadFunction();

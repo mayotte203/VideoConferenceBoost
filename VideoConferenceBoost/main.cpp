@@ -11,6 +11,7 @@
 #include "PacketTransceiver.h"
 #include "MicrophoneRecorder.h"
 #include "MicrophoneStream.h"
+#include "PacketRouter.h"
 
 constexpr unsigned int WINDOW_WIDTH = 1280;
 constexpr unsigned int  WINDOW_HEIGHT = 720;
@@ -19,78 +20,9 @@ constexpr unsigned int CAMERA_HEIGHT = 480;
 
 #define SINGLE_PC 
 
-//
-void receiverThreadFunction(boost::asio::ip::tcp::socket* socket, std::mutex* socketMutex, std::vector<uchar>* packetBuf, std::mutex* packetBufMutex, bool* packetReady)
-{
-    uchar* receiveBuf = new uchar[500000];
-    size_t bufReceiveSize = 0;
-    size_t packetSize = 0;
-    size_t receiveSize = 0;
-    while (true)
-    {
-        try
-        {
-            receiveSize = socket->receive(boost::asio::buffer(receiveBuf + bufReceiveSize, 500000 - bufReceiveSize));
-            bufReceiveSize += receiveSize;
-        }
-        catch (boost::system::system_error e)
-        {
-            std::cout << "error" << std::endl;
-        }
-        packetSize = *(reinterpret_cast<size_t*>(receiveBuf));
-        if (packetSize > 500000)
-        {
-            bufReceiveSize = 0;
-        }
-        size_t skipBytes = 0;
-        packetBufMutex->lock();
-        while (bufReceiveSize > packetSize + sizeof(size_t))
-        {
-            //packetBufMutex->lock();
-            *packetBuf = std::vector<uchar>(receiveBuf + sizeof(size_t), receiveBuf + sizeof(size_t) + packetSize);
-            *packetReady = true;
-            //packetBufMutex->unlock();
-            for (size_t i = 0; i < bufReceiveSize - packetSize - sizeof(size_t); ++i)
-            {
-                receiveBuf[i] = receiveBuf[i + packetSize + sizeof(size_t)];
-            }
-            bufReceiveSize = bufReceiveSize - packetSize - sizeof(size_t);
-            packetSize = *(reinterpret_cast<size_t*>(receiveBuf));
-        }
-        packetBufMutex->unlock();
-    }
-}
-
-void senderThreadFunction(boost::asio::ip::tcp::socket* socket, std::mutex* socketMutex, std::vector<uchar>* packetBuf, std::mutex* packetBufMutex, bool* packetReady)
-{
-    std::vector<uchar> sendBuf;
-    bool bufReady = false;
-    while (true)
-    {
-        packetBufMutex->lock();
-        if (*packetReady)
-        {
-            sendBuf = *packetBuf;
-            *packetReady = false;
-            packetBufMutex->unlock();
-            size_t sendSize = sendBuf.size();
-            boost::asio::write(*socket, boost::asio::buffer(&sendSize, sizeof(size_t)));
-            boost::asio::write(*socket, boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
-            //socket->send(boost::asio::buffer(&sendSize, sizeof(size_t)));
-            //socket->send(boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
-        }
-        else
-        {
-            packetBufMutex->unlock();
-        }
-    }
-}
-
 void imagePacketFunction(sf::Texture *texture, PacketTransceiver *packetTr, std::mutex *textureMutex, MicrophoneStream *micStream)
 {
     sf::Image image;
-    sf::SoundBuffer buffer;
-    sf::Sound sound(buffer);
     std::condition_variable* condVar = packetTr->getReceiveCondVar();
     while (true)
     {
@@ -119,9 +51,6 @@ void imagePacketFunction(sf::Texture *texture, PacketTransceiver *packetTr, std:
                 case PacketType::Sound:
                 {
                     imagePacket.pop_back();
-                    /*sound.stop();
-                    buffer.loadFromSamples(reinterpret_cast<sf::Int16*>(imagePacket.data()), imagePacket.size() / 2, 1, 44100);
-                    sound.play();*/
                     micStream->addSamples(std::move(imagePacket));
                     if (micStream->getStatus() != sf::SoundSource::Playing)
                     {
@@ -188,17 +117,14 @@ int main()
 
     std::vector<uchar> receiveBuf;
     std::vector<uchar> sendBuf;
-    //std::mutex socketMutex, receiveMutex, sendMutex;
-    //bool sendReady = false;
-    //bool receiveReady = false;
-    //std::thread senderThread(senderThreadFunction, &socket, &socketMutex, &sendBuf, &sendMutex, &sendReady);
-    //std::thread receiverThread(receiverThreadFunction, &socket, &socketMutex, &receiveBuf, &receiveMutex, &receiveReady);
 
     std::condition_variable condVar;
     PacketTransceiver packetTr(&socket);
     std::mutex textureMutex;
+    PacketRouter packetRouter(packetTr);
     MicrophoneStream micStream;
-    std::thread videoThread(imagePacketFunction, &texture1, &packetTr, &textureMutex, &micStream);
+    packetRouter.connect(micStream, PacketType::Sound);
+    //std::thread videoThread(imagePacketFunction, &texture1, &packetTr, &textureMutex, &micStream);
     MicrophoneRecorder micRecorder(&packetTr);
     micRecorder.start();
     while (window.isOpen())

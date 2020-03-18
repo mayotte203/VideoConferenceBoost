@@ -15,6 +15,15 @@ void MicrophoneStream::addSamples(std::vector<uchar> samples)
 	}
 }
 
+void MicrophoneStream::handlePacket(const std::vector<uchar> packet, uchar packetType)
+{
+	addSamples(packet);
+	if (getStatus() != sf::Sound::Playing)
+	{
+		play();
+	}
+}
+
 bool MicrophoneStream::onGetData(Chunk& data)
 {
 	samplesQueueMutex.lock();
