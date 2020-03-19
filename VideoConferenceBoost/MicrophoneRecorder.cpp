@@ -1,8 +1,8 @@
 #include "MicrophoneRecorder.h"
 
-MicrophoneRecorder::MicrophoneRecorder(PacketTransceiver* packetTr)
+MicrophoneRecorder::MicrophoneRecorder(PacketRouter& packetRouter)
 {
-	this->packetTr = packetTr;
+	this->packetRouter = &packetRouter;
 }
 
 MicrophoneRecorder::~MicrophoneRecorder()
@@ -13,7 +13,6 @@ MicrophoneRecorder::~MicrophoneRecorder()
 bool MicrophoneRecorder::onProcessSamples(const sf::Int16* samples, std::size_t sampleCount)
 {
 	std::vector<uchar> packet = std::vector<uchar>(reinterpret_cast<uchar*>(const_cast<sf::Int16*>(samples)), reinterpret_cast<uchar*>(const_cast<sf::Int16*>(samples + sampleCount)));
-	packet.push_back(PacketType::Sound);
-	packetTr->sendPacket(std::move(packet));
+	packetRouter->send(std::move(packet), PacketType::Sound);
 	return true;
 }

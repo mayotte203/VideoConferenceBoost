@@ -160,6 +160,8 @@
     <ClCompile Include="MicrophoneStream.cpp" />
     <ClCompile Include="PacketRouter.cpp" />
     <ClCompile Include="PacketTransceiver.cpp" />
+    <ClCompile Include="VideoRecorder.cpp" />
+    <ClCompile Include="VideoStream.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPacketEndpoint.h" />
@@ -168,6 +170,8 @@
     <ClInclude Include="PacketRouter.h" />
     <ClInclude Include="PacketTransceiver.h" />
     <ClInclude Include="types.h" />
+    <ClInclude Include="VideoRecorder.h" />
+    <ClInclude Include="VideoStream.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

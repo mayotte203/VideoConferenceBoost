@@ -1,15 +1,15 @@
 #pragma once
 #include <sfml/Audio.hpp>
-#include "PacketTransceiver.h"
+#include "PacketRouter.h"
 
 class MicrophoneRecorder : public sf::SoundRecorder
 {
 public:
 	MicrophoneRecorder() = delete;
-	MicrophoneRecorder(PacketTransceiver* packetTr);
+	MicrophoneRecorder(PacketRouter& packetRouter);
 	~MicrophoneRecorder();
 private:
-	PacketTransceiver* packetTr;
+	PacketRouter* packetRouter;
 	virtual bool onProcessSamples(const sf::Int16* samples, std::size_t sampleCount);
 };
 
