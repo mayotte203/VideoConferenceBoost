@@ -35,7 +35,7 @@ int main()
 
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "VideoConference");
 
-    PacketTransceiver packetTransceiver(&socket);
+    PacketTransceiver packetTransceiver(socket);
     PacketRouter packetRouter(packetTransceiver);
     MicrophoneStream microphoneStream;
     packetRouter.connect(microphoneStream, PacketType::Sound);
@@ -44,6 +44,11 @@ int main()
     VideoRecorder videoRecorder(packetRouter);
     MicrophoneRecorder microphoneRecorder(packetRouter);
     microphoneRecorder.start();
+    packetTransceiver.setSending(true);
+    packetTransceiver.setReceiving(true);
+    sf::Clock clock;
+    sf::Time elapsedTime;
+    clock.restart();
     while (window.isOpen())
     {
         sf::Event event;
@@ -52,10 +57,15 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-        window.clear();
-        window.draw(videoRecorder);
-        window.draw(videoStream);
-        window.display();
+        elapsedTime += clock.restart();
+        if (elapsedTime > sf::milliseconds(1000 / 30))
+        {
+            window.clear();
+            window.draw(videoRecorder);
+            window.draw(videoStream);
+            window.display();
+            elapsedTime -= sf::milliseconds(1000 / 30);
+        }
     }
     return 0;
 }

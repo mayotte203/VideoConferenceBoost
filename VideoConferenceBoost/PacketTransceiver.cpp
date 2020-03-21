@@ -1,19 +1,22 @@
 #include "PacketTransceiver.h"
 #include <iostream>
 
-PacketTransceiver::PacketTransceiver(boost::asio::ip::tcp::socket* socket)
+PacketTransceiver::PacketTransceiver(boost::asio::ip::tcp::socket& socket)
 {
-    this->socket = socket;
+    this->socket = &socket;
     senderThread = std::thread(&PacketTransceiver::senderThreadFunction, this);
     receiverThread = std::thread(&PacketTransceiver::receiverThreadFunction, this);
 }
 
 void PacketTransceiver::sendPacket(std::vector<uchar> packet)
 {
-    senderMutex.lock();
-	this->senderQueue.push(std::move(packet));
-    senderMutex.unlock();
-    senderCondition.notify_one();
+    if (sending)
+    {
+        senderMutex.lock();
+        this->senderQueue.push(std::move(packet));
+        senderMutex.unlock();
+        sendCondition.notify_one();
+    }
 }
 
 std::vector<uchar> PacketTransceiver::receivePacket()
@@ -35,29 +38,43 @@ std::condition_variable* PacketTransceiver::getReceiveCondVar()
     return &receiveCondition;
 }
 
+bool PacketTransceiver::isReceiving()
+{
+    return receiving;
+}
+
+bool PacketTransceiver::isSending()
+{
+    return sending;
+}
+
+void PacketTransceiver::setReceiving(bool isReceiving)
+{
+    receiving = isReceiving;
+}
+
+void PacketTransceiver::setSending(bool isSending)
+{
+    sending = isSending;
+}
+
 void PacketTransceiver::senderThreadFunction()
 {
     std::vector<uchar> sendBuf;
-    std::mutex condVarMutex;//FIX this s h i t
-    std::condition_variable condVar;
+    std::unique_lock<std::mutex> lock(senderMutex, std::defer_lock);
     while (true)
     {
+        lock.lock();
         while (senderQueue.size() == 0)
         {
-            std::unique_lock<std::mutex> lock(condVarMutex);
-            senderCondition.wait(lock);//Note: U NEED TO OWN mutex!!!!! before calling wait 
-            lock.unlock(); //and this
-        }
-        while (senderQueue.size() > 0)
-        {
-            senderMutex.lock();
-            sendBuf = std::move(senderQueue.front());
-            senderQueue.pop();
-            senderMutex.unlock();
-            size_t sendSize = sendBuf.size();
-            boost::asio::write(*socket, boost::asio::buffer(&sendSize, sizeof(size_t)));
-            boost::asio::write(*socket, boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
-        }
+            sendCondition.wait(lock);//Note: U NEED TO OWN mutex!!!!! before calling wait 
+        }    
+        sendBuf = std::move(senderQueue.front());
+        senderQueue.pop();
+        lock.unlock();
+        size_t sendSize = sendBuf.size();
+        boost::asio::write(*socket, boost::asio::buffer(&sendSize, sizeof(size_t)));
+        boost::asio::write(*socket, boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
     }
 }
 

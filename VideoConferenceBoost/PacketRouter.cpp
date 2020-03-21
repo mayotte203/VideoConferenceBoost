@@ -39,15 +39,14 @@ void PacketRouter::packetRouterThreadFunction()
         {
             condVar->wait(lock);
         }
-        while (packetTransceiver->isPacketReady())
+        lock.unlock();
+        std::vector<uchar> packet = packetTransceiver->receivePacket();
+        uchar packetType = packet.back();
+        packet.pop_back();
+        lock.lock();
+        if (endpointMap[packetType] != nullptr)
         {
-            std::vector<uchar> packet = packetTransceiver->receivePacket();
-            uchar packetType = packet.back();
-            packet.pop_back();
-            if (endpointMap[packetType] != nullptr)
-            {
-                endpointMap[packetType]->handlePacket(packet, packetType);
-            }
+            endpointMap[packetType]->handlePacket(packet, packetType);
         }
         lock.unlock();
     }
