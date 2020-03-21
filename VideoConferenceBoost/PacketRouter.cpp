@@ -4,7 +4,7 @@
 PacketRouter::PacketRouter(PacketTransceiver& packetTr)
 {
 	packetTransceiver = &packetTr;
-    packetRouterThread = std::thread(&PacketRouter::packetRouterThreadFunction, this);
+    packetTransceiver->connectRouter(*this);
 }
 
 void PacketRouter::connect(IPacketEndpoint& packetEndpoint, uchar packetType)
@@ -25,29 +25,17 @@ void PacketRouter::disconnect(IPacketEndpoint& packetEndpoint, uchar packetType)
 void PacketRouter::send(std::vector<uchar> packet, uchar packetType)
 {
 	packet.push_back(packetType);
-	packetTransceiver->sendPacket(packet);
+	packetTransceiver->sendPacket(std::move(packet));
 }
 
-void PacketRouter::packetRouterThreadFunction()
+void PacketRouter::routePacket(std::vector<uchar> packet)
 {
-    std::condition_variable* condVar = packetTransceiver->getReceiveCondVar();
-    std::unique_lock<std::mutex> lock(endpointMapMutex, std::defer_lock);
-    while (true)//Think about threads loops
+    uchar packetType = packet.back();
+    packet.pop_back();
+    endpointMapMutex.lock();
+    if (endpointMap[packetType] != nullptr)
     {
-        lock.lock();
-        while (!packetTransceiver->isPacketReady())
-        {
-            condVar->wait(lock);
-        }
-        lock.unlock();
-        std::vector<uchar> packet = packetTransceiver->receivePacket();
-        uchar packetType = packet.back();
-        packet.pop_back();
-        lock.lock();
-        if (endpointMap[packetType] != nullptr)
-        {
-            endpointMap[packetType]->handlePacket(packet, packetType);
-        }
-        lock.unlock();
+        endpointMap[packetType]->handlePacket(packet, packetType);
     }
+    endpointMapMutex.unlock();
 }

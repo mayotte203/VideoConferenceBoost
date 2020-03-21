@@ -6,8 +6,9 @@
 #include "PacketTransceiver.h"
 #include "IPacketEndpoint.h"
 #include "types.h"
+#include "IPacketRouter.h"
 
-class PacketRouter
+class PacketRouter : public IPacketRouter
 {
 public:
 	PacketRouter() = delete;
@@ -15,12 +16,10 @@ public:
 	void connect(IPacketEndpoint& packetEndpoint, uchar packetType);
 	void disconnect(IPacketEndpoint& packetEndpoint, uchar packetType);
 	void send(std::vector<uchar> packet, uchar packetType);
+	virtual void routePacket(std::vector<uchar> packet);
 private:
-	std::map<uchar, std::queue<std::vector<uchar>>> receivedPacketMap;
 	std::map<uchar, IPacketEndpoint*> endpointMap;
 	std::mutex endpointMapMutex;
 	PacketTransceiver* packetTransceiver;
-	std::thread packetRouterThread;
-	void packetRouterThreadFunction();
 };
 

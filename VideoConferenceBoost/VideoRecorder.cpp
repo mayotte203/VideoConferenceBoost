@@ -65,7 +65,7 @@ void VideoRecorder::videoRecorderThreadFunction()
 		videoImage.create(RGBAMat.cols, RGBAMat.rows, RGBAMat.ptr());
 		cv::imencode(".jpg", std::move(webcamMat), jpegBuffer, std::vector<int>{cv::IMWRITE_JPEG_QUALITY, 70});
 #endif // SINGLE_PC	
-		packetRouter->send(jpegBuffer, PacketType::Image);
+		packetRouter->send(std::move(jpegBuffer), PacketType::Image);
 		videoTextureMutex.lock();
 		videoTexture.update(videoImage);
 		videoTextureMutex.unlock();

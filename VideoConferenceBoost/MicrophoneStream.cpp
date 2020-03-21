@@ -29,7 +29,6 @@ bool MicrophoneStream::onGetData(Chunk& data)
 	samplesQueueMutex.lock();
 	if (samplesQueue.size() > 0)
 	{
-		//currentBuffer = std::vector<sf::Int16>(reinterpret_cast<sf::Int16*>(samplesQueue.front().data()), reinterpret_cast<sf::Int16*>(samplesQueue.front().data() + samplesQueue.front().size()));
 		currentBuffer.loadFromSamples(reinterpret_cast<sf::Int16*>(samplesQueue.front().data()), samplesQueue.front().size() / 2, 1, 44100);		
 		samplesQueue.pop();
 		samplesQueueMutex.unlock();

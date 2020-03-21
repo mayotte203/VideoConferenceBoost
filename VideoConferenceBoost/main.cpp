@@ -14,6 +14,7 @@
 #include "PacketRouter.h"
 #include "VideoRecorder.h"
 #include "VideoStream.h"
+#include "ExceptionTransporter.h"
 
 constexpr unsigned int WINDOW_WIDTH = 1280;
 constexpr unsigned int  WINDOW_HEIGHT = 720;
@@ -49,6 +50,8 @@ int main()
     sf::Clock clock;
     sf::Time elapsedTime;
     clock.restart();
+    enum class State{Connected, NotConnected};
+    State state = State::Connected;
     while (window.isOpen())
     {
         sf::Event event;
@@ -56,6 +59,28 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::Q && state == State::Connected)
+                {
+                    packetTransceiver.setReceiving(false);
+                    packetTransceiver.setSending(false);
+                    socket.close();
+                    state = State::NotConnected;
+                }
+                if (event.key.code == sf::Keyboard::W && state == State::NotConnected)
+                {
+                    socket.open(boost::asio::ip::tcp::v4());
+                    socket.connect(ep);
+                    packetTransceiver.setSending(true);
+                    packetTransceiver.setReceiving(true);
+                    state = State::Connected;
+                }
+            }
+        }
+        while (!ExceptionTransporter::isEmpty())
+        {
+            auto excepetionPair = ExceptionTransporter::retrieveException();
         }
         elapsedTime += clock.restart();
         if (elapsedTime > sf::milliseconds(1000 / 30))

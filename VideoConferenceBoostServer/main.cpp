@@ -80,22 +80,5 @@ int main()
     receiverThread1.join();
     /*senderThread0.join();
     senderThread1.join();*/
-
-    /*uchar *buf = new uchar[200000];
-    while (true)
-    {
-        size_t size;
-        try
-        {
-            size = socket.receive(boost::asio::buffer(buf, 200000));
-        }
-        catch (boost::system::system_error e)
-        {
-            std::cout << "error" << std::endl;
-        }
-        std::cout << "rec " << size << " " << (int)buf[100] << std::endl;
-        std::flush(std::cout);
-    }*/
-
     return 0;
 }

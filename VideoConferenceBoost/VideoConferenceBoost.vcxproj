@@ -154,7 +154,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExceptionTransporter.cpp" />
     <ClCompile Include="IPacketEndpoint.cpp" />
+    <ClCompile Include="IPacketRouter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MicrophoneRecorder.cpp" />
     <ClCompile Include="MicrophoneStream.cpp" />
@@ -164,7 +166,9 @@
     <ClCompile Include="VideoStream.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ExceptionTransporter.h" />
     <ClInclude Include="IPacketEndpoint.h" />
+    <ClInclude Include="IPacketRouter.h" />
     <ClInclude Include="MicrophoneRecorder.h" />
     <ClInclude Include="MicrophoneStream.h" />
     <ClInclude Include="PacketRouter.h" />
