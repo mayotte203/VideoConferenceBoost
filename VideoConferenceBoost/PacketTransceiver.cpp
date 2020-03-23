@@ -1,11 +1,9 @@
 #include "PacketTransceiver.h"
 #include <iostream>
 
-PacketTransceiver::PacketTransceiver(boost::asio::ip::tcp::socket& socket)
+PacketTransceiver::PacketTransceiver(boost::asio::io_service& ioservice) :socket(boost::asio::ip::tcp::socket(ioservice))
 {
-    this->socket = &socket;
-    senderThread = std::thread(&PacketTransceiver::senderThreadFunction, this);
-    receiverThread = std::thread(&PacketTransceiver::receiverThreadFunction, this);
+    this->ioservice = &ioservice;
 }
 
 void PacketTransceiver::sendPacket(std::vector<uchar> packet)
@@ -66,41 +64,75 @@ void PacketTransceiver::connectRouter(IPacketRouter& packetRouter)
     this->packetRouter = &packetRouter;
 }
 
+void PacketTransceiver::connect(boost::asio::ip::address address, int port)
+{
+    boost::asio::ip::tcp::endpoint ep(address, port);
+    socket.open(boost::asio::ip::tcp::v4());
+    try
+    {
+        socket.connect(ep);
+    }
+    catch (boost::system::system_error e)
+    {
+        std::cout << "error" << std::endl;
+    }
+    sending = true;
+    receiving = true;
+    senderThread = std::thread(&PacketTransceiver::senderThreadFunction, this);
+    receiverThread = std::thread(&PacketTransceiver::receiverThreadFunction, this);
+}
+
+void PacketTransceiver::disconnect()
+{
+    sending = false;
+    receiving = false;
+    senderQueueCondition.notify_one();
+    if (senderThread.joinable())
+    {
+        senderThread.join();
+    }
+    if (receiverThread.joinable())
+    {
+        receiverThread.join();
+    }
+    if (socket.is_open())
+    {
+        socket.close();
+    }
+}
+
 void PacketTransceiver::senderThreadFunction()
 {
     std::vector<uchar> sendBuf;
     std::unique_lock<std::mutex> senderQueueLock(senderQueueMutex, std::defer_lock);
     std::unique_lock<std::mutex> senderLock(senderMutex, std::defer_lock);
-    while (true)
+    while (sending)
     {
-        senderLock.lock();
-        while (!sending)
-        {
-            senderCondition.wait(senderLock);
-        }
         senderQueueLock.lock();
-        while (senderQueue.size() == 0)
+        while (senderQueue.size() == 0 && sending)
         {
             senderQueueCondition.wait(senderQueueLock);//Note: U NEED TO OWN mutex!!!!! before calling wait 
         }    
-        sendBuf = std::move(senderQueue.front());
-        senderQueue.pop();
+        if (senderQueue.size() != 0)
+        {
+            sendBuf = std::move(senderQueue.front());
+            senderQueue.pop();
+        }
         senderQueueLock.unlock();
-        size_t sendSize = sendBuf.size();
-        try
+        if (sending)
         {
-            boost::asio::write(*socket, boost::asio::buffer(&sendSize, sizeof(size_t)));
-            boost::asio::write(*socket, boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
+            size_t sendSize = sendBuf.size();
+            try
+            {
+                boost::asio::write(socket, boost::asio::buffer(&sendSize, sizeof(size_t)));
+                boost::asio::write(socket, boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
+            }
+            catch (boost::system::system_error exception)
+            {
+                std::cout << exception.what() << std::endl;
+                ExceptionTransporter::throwException(ExceptionTransporter::Invoker::SenderThread, std::exception("Connection Aborted"));
+            }
         }
-        catch(boost::system::system_error exception)
-        {
-            std::cout << exception.what() << std::endl;
-            sending = false;
-            senderQueueMutex.lock();
-            senderQueue = std::queue<std::vector<uchar>>();
-            senderQueueMutex.unlock();
-        }
-        senderLock.unlock();
     }
 }
 
@@ -111,23 +143,17 @@ void PacketTransceiver::receiverThreadFunction()
     size_t packetSize = 0;
     size_t receiveSize = 0;
     std::unique_lock<std::mutex> receiverLock(receiverMutex, std::defer_lock);
-    while (true)
+    while (receiving)
     {
-        receiverLock.lock();
-        while (!receiving)
-        {
-            bufReceiveSize = 0;
-            receiverCondition.wait(receiverLock);
-        }
         try
         {
-            receiveSize = socket->receive(boost::asio::buffer(receiveBuf + bufReceiveSize, RECEVIER_BUF_SIZE - bufReceiveSize));
+            receiveSize = socket.receive(boost::asio::buffer(receiveBuf + bufReceiveSize, RECEVIER_BUF_SIZE - bufReceiveSize));
             bufReceiveSize += receiveSize;
         }
         catch (boost::system::system_error exception)
         {
             std::cout << exception.what() << std::endl;
-            receiving = false;
+            ExceptionTransporter::throwException(ExceptionTransporter::Invoker::ReceiverThread, std::exception("Connection Aborted"));
         }
         packetSize = *(reinterpret_cast<size_t*>(receiveBuf));
         if (packetSize > RECEVIER_BUF_SIZE)
@@ -150,7 +176,6 @@ void PacketTransceiver::receiverThreadFunction()
             }
             bufReceiveSize = bufReceiveSize - skipBytes;
         }
-        receiverLock.unlock();
     }
     delete[] receiveBuf;
 }

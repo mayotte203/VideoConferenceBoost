@@ -7,23 +7,25 @@
 #include <condition_variable>
 #include "types.h"
 #include "IPacketRouter.h"
+#include "ExceptionTransporter.h"
 
 class PacketTransceiver
 {
 public:
 	PacketTransceiver() = delete;
-	PacketTransceiver(boost::asio::ip::tcp::socket &socket);//
+	PacketTransceiver(boost::asio::io_service& ioservice);//
 	void sendPacket(std::vector<uchar> packet);
 	bool isReceiving();
 	bool isSending();
 	void setReceiving(bool isReceiving);
 	void setSending(bool isSending);
 	void connectRouter(IPacketRouter& packetRouter);
-	void connect(boost::asio::ip::address address);//
+	void connect(boost::asio::ip::address address, int port);//
 	void disconnect();//
 private:
 	static constexpr size_t RECEVIER_BUF_SIZE = 512 * 1024;
-	boost::asio::ip::tcp::socket* socket;
+	boost::asio::ip::tcp::socket socket;
+	boost::asio::io_service* ioservice;
 	IPacketRouter* packetRouter = nullptr;
 	std::condition_variable receiverCondition;
 	std::condition_variable senderCondition;

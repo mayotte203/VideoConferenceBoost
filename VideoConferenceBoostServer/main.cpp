@@ -22,7 +22,7 @@ void receiverThreadFunction(boost::asio::ip::tcp::socket* socket0, boost::asio::
         }
         catch (boost::system::system_error e)
         {
-            std::cout << "error" << std::endl;
+            std::cout << e.what() << std::endl;
         }
         //socket1->send(boost::asio::buffer(receiveBuf, receiveSize));
         boost::asio::write(*socket1, boost::asio::buffer(receiveBuf, receiveSize));
@@ -56,6 +56,7 @@ void senderThreadFunction(boost::asio::ip::tcp::socket* socket, std::vector<ucha
 
 int main()
 {
+    system("chcp 1251 > nul");
     std::vector<uchar> buf[2];
     std::mutex bufMutex[2];
     bool bufReady[2] = { false, false };

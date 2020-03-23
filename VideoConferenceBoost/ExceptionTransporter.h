@@ -6,7 +6,7 @@
 namespace ExceptionTransporter
 {
 	enum class Invoker{SenderThread, ReceiverThread};
-	void throwException(std::exception exception, Invoker invoker);
+	void throwException(Invoker invoker, std::exception exception);
 	std::pair<Invoker, std::exception> retrieveException();
 	bool isEmpty();
 };

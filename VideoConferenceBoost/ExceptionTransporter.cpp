@@ -4,7 +4,7 @@ namespace ExceptionTransporter
 	std::queue<std::pair<Invoker, std::exception>> exceptionQueue;
 	std::mutex exceptionQueueMutex;
 
-	void ExceptionTransporter::throwException(std::exception exception, Invoker invoker)
+	void ExceptionTransporter::throwException(Invoker invoker, std::exception exception)
 	{
 		std::scoped_lock lock(exceptionQueueMutex);
 		exceptionQueue.push(std::pair(invoker, exception));

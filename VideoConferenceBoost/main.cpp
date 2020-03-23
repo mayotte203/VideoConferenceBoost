@@ -21,22 +21,12 @@ constexpr unsigned int  WINDOW_HEIGHT = 720;
 
 int main()
 {
+    system("chcp 1251 > nul");
     boost::asio::io_service ioservice;
-    boost::asio::ip::tcp::socket socket(ioservice);
-    boost::asio::ip::tcp::endpoint ep(boost::asio::ip::address::from_string("192.168.0.102"), 50005);
-    socket.open(boost::asio::ip::tcp::v4());
-    try
-    {
-        socket.connect(ep);
-    }
-    catch (boost::system::system_error e)
-    {
-        std::cout << "error" << std::endl;
-    }
 
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "VideoConference");
 
-    PacketTransceiver packetTransceiver(socket);
+    PacketTransceiver packetTransceiver(ioservice);
     PacketRouter packetRouter(packetTransceiver);
     MicrophoneStream microphoneStream;
     packetRouter.connect(microphoneStream, PacketType::Sound);
@@ -45,8 +35,8 @@ int main()
     VideoRecorder videoRecorder(packetRouter);
     MicrophoneRecorder microphoneRecorder(packetRouter);
     microphoneRecorder.start();
-    packetTransceiver.setSending(true);
-    packetTransceiver.setReceiving(true);
+    packetTransceiver.connect(boost::asio::ip::address::from_string("192.168.0.102"), 50005);
+    
     sf::Clock clock;
     sf::Time elapsedTime;
     clock.restart();
@@ -63,17 +53,12 @@ int main()
             {
                 if (event.key.code == sf::Keyboard::Q && state == State::Connected)
                 {
-                    packetTransceiver.setReceiving(false);
-                    packetTransceiver.setSending(false);
-                    socket.close();
+                    packetTransceiver.disconnect();
                     state = State::NotConnected;
                 }
                 if (event.key.code == sf::Keyboard::W && state == State::NotConnected)
                 {
-                    socket.open(boost::asio::ip::tcp::v4());
-                    socket.connect(ep);
-                    packetTransceiver.setSending(true);
-                    packetTransceiver.setReceiving(true);
+                    packetTransceiver.connect(boost::asio::ip::address::from_string("192.168.0.102"), 50005);
                     state = State::Connected;
                 }
             }
@@ -81,6 +66,11 @@ int main()
         while (!ExceptionTransporter::isEmpty())
         {
             auto excepetionPair = ExceptionTransporter::retrieveException();
+            if (strcmp(excepetionPair.second.what(), "Connection Aborted") == 0)
+            {
+                packetTransceiver.disconnect();
+                state = State::NotConnected;
+            }
         }
         elapsedTime += clock.restart();
         if (elapsedTime > sf::milliseconds(1000 / 30))
