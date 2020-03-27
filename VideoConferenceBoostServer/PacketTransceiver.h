@@ -5,24 +5,24 @@
 #include <vector>
 #include <queue>
 #include <condition_variable>
-#include "types.h"
 #include "IPacketRouter.h"
 #include "ExceptionTransporter.h"
 
 class PacketTransceiver
 {
 public:
-	PacketTransceiver() = delete;
-	PacketTransceiver(boost::asio::io_service& ioservice);//
+	PacketTransceiver();
+	~PacketTransceiver();
+	void connect(boost::asio::ip::tcp::socket&& socket);
+	void disconnect();
 	void sendPacket(std::vector<uint8_t> packet);
-	void connectRouter(IPacketRouter& packetRouter);
-	void connect(boost::asio::ip::address address, int port);//
-	void disconnect();//
+	void connectRouter(int ID, IPacketRouter& packetRouter);
+	bool isConnected();
 private:
 	static constexpr size_t RECEVIER_BUF_SIZE = 512 * 1024;
-	boost::asio::ip::tcp::socket socket;
-	boost::asio::io_service* ioservice;
+	boost::asio::ip::tcp::socket* socket = nullptr;
 	IPacketRouter* packetRouter = nullptr;
+	int ID = 0;
 	std::condition_variable receiverCondition;
 	std::condition_variable senderCondition;
 	std::thread senderThread;

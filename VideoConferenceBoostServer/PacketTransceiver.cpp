@@ -1,39 +1,19 @@
 #include "PacketTransceiver.h"
 #include <iostream>
 
-PacketTransceiver::PacketTransceiver(boost::asio::io_service& ioservice) :socket(boost::asio::ip::tcp::socket(ioservice))
+PacketTransceiver::PacketTransceiver()
 {
-    this->ioservice = &ioservice;
+
 }
 
-void PacketTransceiver::sendPacket(std::vector<uint8_t> packet)
+PacketTransceiver::~PacketTransceiver()
 {
-    if (connected)
-    {
-        senderQueueMutex.lock();
-        this->senderQueue.push(std::move(packet));
-        senderQueueMutex.unlock();
-        senderQueueCondition.notify_one();
-    }
+    disconnect();
 }
 
-void PacketTransceiver::connectRouter(IPacketRouter& packetRouter)
+void PacketTransceiver::connect(boost::asio::ip::tcp::socket&& socket)
 {
-    this->packetRouter = &packetRouter;
-}
-
-void PacketTransceiver::connect(boost::asio::ip::address address, int port)
-{
-    boost::asio::ip::tcp::endpoint ep(address, port);
-    socket.open(boost::asio::ip::tcp::v4());
-    try
-    {
-        socket.connect(ep);
-    }
-    catch (boost::system::system_error e)
-    {
-        std::cout << "error" << std::endl;
-    }
+    this->socket = new boost::asio::ip::tcp::socket(std::move(socket));
     connected = true;
     senderThread = std::thread(&PacketTransceiver::senderThreadFunction, this);
     receiverThread = std::thread(&PacketTransceiver::receiverThreadFunction, this);
@@ -51,10 +31,32 @@ void PacketTransceiver::disconnect()
     {
         receiverThread.join();
     }
-    if (socket.is_open())
+    if (socket != nullptr)
     {
-        socket.close();
+        delete socket;
     }
+}
+
+void PacketTransceiver::sendPacket(std::vector<uint8_t> packet)
+{
+    if (connected)
+    {
+        senderQueueMutex.lock();
+        this->senderQueue.push(std::move(packet));
+        senderQueueMutex.unlock();
+        senderQueueCondition.notify_one();
+    }
+}
+
+void PacketTransceiver::connectRouter(int ID, IPacketRouter& packetRouter)
+{
+    this->ID = ID;
+    this->packetRouter = &packetRouter;
+}
+
+bool PacketTransceiver::isConnected()
+{
+    return connected;
 }
 
 void PacketTransceiver::senderThreadFunction()
@@ -67,8 +69,8 @@ void PacketTransceiver::senderThreadFunction()
         senderQueueLock.lock();
         while (senderQueue.size() == 0 && connected)
         {
-            senderQueueCondition.wait(senderQueueLock); 
-        }    
+            senderQueueCondition.wait(senderQueueLock);
+        }
         if (senderQueue.size() != 0)
         {
             sendBuf = std::move(senderQueue.front());
@@ -80,11 +82,12 @@ void PacketTransceiver::senderThreadFunction()
             size_t sendSize = sendBuf.size();
             try
             {
-                boost::asio::write(socket, boost::asio::buffer(&sendSize, sizeof(size_t)));
-                boost::asio::write(socket, boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
+                boost::asio::write(*socket, boost::asio::buffer(&sendSize, sizeof(size_t)));
+                boost::asio::write(*socket, boost::asio::buffer(reinterpret_cast<void*>(sendBuf.data()), sendBuf.size()));
             }
             catch (boost::system::system_error exception)
             {
+                connected = false;
                 ExceptionTransporter::throwException(this, std::exception("Connection Aborted"));
             }
         }
@@ -102,14 +105,12 @@ void PacketTransceiver::receiverThreadFunction()
     {
         try
         {
-            if (socket.available())
-            {
-                receiveSize = socket.receive(boost::asio::buffer(receiveBuf + bufReceiveSize, RECEVIER_BUF_SIZE - bufReceiveSize));
-                bufReceiveSize += receiveSize;
-            }
+            receiveSize = socket->receive(boost::asio::buffer(receiveBuf + bufReceiveSize, RECEVIER_BUF_SIZE - bufReceiveSize));
+            bufReceiveSize += receiveSize;
         }
         catch (boost::system::system_error exception)
         {
+            connected = false;
             ExceptionTransporter::throwException(this, std::exception("Connection Aborted"));
         }
         packetSize = *(reinterpret_cast<size_t*>(receiveBuf));
@@ -120,8 +121,8 @@ void PacketTransceiver::receiverThreadFunction()
         size_t skipBytes = 0;
         while (bufReceiveSize > skipBytes + packetSize + sizeof(size_t))
         {
-            if(packetRouter != nullptr)
-            packetRouter->routePacket(std::vector<uint8_t>(receiveBuf + skipBytes + sizeof(size_t), receiveBuf + skipBytes + sizeof(size_t) + packetSize));
+            if (packetRouter != nullptr)
+                packetRouter->routePacket(ID, std::vector<uint8_t>(receiveBuf + skipBytes + sizeof(size_t), receiveBuf + skipBytes + sizeof(size_t) + packetSize));
             skipBytes += packetSize + sizeof(size_t);
             packetSize = *(reinterpret_cast<size_t*>(receiveBuf + skipBytes));
         }

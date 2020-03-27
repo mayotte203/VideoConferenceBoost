@@ -5,6 +5,6 @@
 class IPacketEndpoint
 {
 public:
-	virtual void handlePacket(const std::vector<uchar> packet, uchar packetType) = 0;
+	virtual void handlePacket(const std::vector<uint8_t> packet, uint8_t packetType) = 0;
 };
 

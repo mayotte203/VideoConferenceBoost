@@ -1,8 +1,8 @@
 #pragma once
-typedef unsigned char uchar;
+//typedef unsigned char uint8_t;
 namespace PacketType //Maybe make a class
 {
-	constexpr uchar Image = 0x00;
-	constexpr uchar Sound = 0x01;
+	constexpr uint8_t Image = 0x00;
+	constexpr uint8_t Sound = 0x01;
 }
-//enum PacketType : uchar {Image, Sound};
+//enum PacketType : uint8_t {Image, Sound};

@@ -12,11 +12,11 @@ class MicrophoneStream : public sf::SoundStream, public IPacketEndpoint
 {
 public:
 	MicrophoneStream();
-	void addSamples(std::vector<uchar> samples);
-	virtual void handlePacket(const std::vector<uchar> packet, uchar packetType);
+	void addSamples(std::vector<uint8_t> samples);
+	virtual void handlePacket(const std::vector<uint8_t> packet, uint8_t packetType);
 private:
 	std::mutex samplesQueueMutex;
-	std::queue<std::vector<uchar>> samplesQueue;
+	std::queue<std::vector<uint8_t>> samplesQueue;
 	//std::vector<sf::Int16> currentBuffer;
 	sf::SoundBuffer currentBuffer;
 	virtual bool onGetData(Chunk& data);

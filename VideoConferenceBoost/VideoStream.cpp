@@ -9,7 +9,7 @@ VideoStream::VideoStream()
 	videoSprite.setPosition(640, 0);//TODO Do this outside
 }
 
-void VideoStream::handlePacket(const std::vector<uchar> packet, uchar packetType)
+void VideoStream::handlePacket(const std::vector<uint8_t> packet, uint8_t packetType)
 {
 	cv::Mat frameRGB = cv::imdecode(packet, -1);
 	cv::Mat frameRGBA;

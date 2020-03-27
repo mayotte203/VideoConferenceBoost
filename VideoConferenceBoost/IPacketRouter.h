@@ -5,6 +5,6 @@
 class IPacketRouter
 {
 public:
-	virtual void routePacket(std::vector<uchar> packet) = 0;
+	virtual void routePacket(std::vector<uint8_t> packet) = 0;
 };
 

@@ -5,7 +5,7 @@ MicrophoneStream::MicrophoneStream()
 	initialize(1, 44100);
 }
 
-void MicrophoneStream::addSamples(std::vector<uchar> samples)
+void MicrophoneStream::addSamples(std::vector<uint8_t> samples)
 {
 	std::scoped_lock<std::mutex> lock(samplesQueueMutex);
 	samplesQueue.push(samples);
@@ -15,7 +15,7 @@ void MicrophoneStream::addSamples(std::vector<uchar> samples)
 	}
 }
 
-void MicrophoneStream::handlePacket(const std::vector<uchar> packet, uchar packetType)
+void MicrophoneStream::handlePacket(const std::vector<uint8_t> packet, uint8_t packetType)
 {
 	addSamples(packet);
 	if (getStatus() != sf::Sound::Playing)

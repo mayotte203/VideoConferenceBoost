@@ -19,7 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ExceptionTransporter.cpp" />
+    <ClCompile Include="IPacketRouter.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PacketRouter.cpp" />
+    <ClCompile Include="PacketTransceiver.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ExceptionTransporter.h" />
+    <ClInclude Include="IPacketRouter.h" />
+    <ClInclude Include="PacketRouter.h" />
+    <ClInclude Include="PacketTransceiver.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -37,6 +37,15 @@ int main()
     microphoneRecorder.start();
     packetTransceiver.connect(boost::asio::ip::address::from_string("192.168.0.102"), 50005);
     
+    sf::Font font;
+    sf::Text statusText;
+    font.loadFromFile("3966.ttf");
+    statusText.setFillColor(sf::Color::Green);
+    statusText.setFont(font);
+    statusText.setCharacterSize(40);
+    statusText.setPosition(50, 520);
+    statusText.setString("Connected");
+
     sf::Clock clock;
     sf::Time elapsedTime;
     clock.restart();
@@ -55,11 +64,15 @@ int main()
                 {
                     packetTransceiver.disconnect();
                     state = State::NotConnected;
+                    statusText.setString("Not Connected");
+                    statusText.setFillColor(sf::Color::Red);
                 }
                 if (event.key.code == sf::Keyboard::W && state == State::NotConnected)
                 {
                     packetTransceiver.connect(boost::asio::ip::address::from_string("192.168.0.102"), 50005);
                     state = State::Connected;
+                    statusText.setString("Connected");
+                    statusText.setFillColor(sf::Color::Green);
                 }
             }
         }
@@ -70,6 +83,8 @@ int main()
             {
                 packetTransceiver.disconnect();
                 state = State::NotConnected;
+                statusText.setString("Not Connected");
+                statusText.setFillColor(sf::Color::Red);
             }
         }
         elapsedTime += clock.restart();
@@ -78,6 +93,7 @@ int main()
             window.clear();
             window.draw(videoRecorder);
             window.draw(videoStream);
+            window.draw(statusText);
             window.display();
             elapsedTime -= sf::milliseconds(1000 / 30);
         }

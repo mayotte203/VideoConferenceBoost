@@ -7,30 +7,21 @@ PacketRouter::PacketRouter(PacketTransceiver& packetTr)
     packetTransceiver->connectRouter(*this);
 }
 
-void PacketRouter::connect(IPacketEndpoint& packetEndpoint, uchar packetType)
+void PacketRouter::connect(IPacketEndpoint& packetEndpoint, uint8_t packetType)
 {
 	std::scoped_lock lock(endpointMapMutex);
-    endpointMap[packetType] = &packetEndpoint;//maybe check if already occupied
-}
-//maybe there is a lot to think about... 
-void PacketRouter::disconnect(IPacketEndpoint& packetEndpoint, uchar packetType)
-{
-	std::scoped_lock lock(endpointMapMutex);
-    if (endpointMap[packetType] == &packetEndpoint)
-    {
-        endpointMap[packetType] = nullptr;
-    }
+    endpointMap[packetType] = &packetEndpoint;
 }
 
-void PacketRouter::send(std::vector<uchar> packet, uchar packetType)
+void PacketRouter::send(std::vector<uint8_t> packet, uint8_t packetType)
 {
 	packet.push_back(packetType);
 	packetTransceiver->sendPacket(std::move(packet));
 }
 
-void PacketRouter::routePacket(std::vector<uchar> packet)
+void PacketRouter::routePacket(std::vector<uint8_t> packet)
 {
-    uchar packetType = packet.back();
+    uint8_t packetType = packet.back();
     packet.pop_back();
     endpointMapMutex.lock();
     if (endpointMap[packetType] != nullptr)

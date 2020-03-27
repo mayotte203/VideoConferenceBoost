@@ -13,12 +13,11 @@ class PacketRouter : public IPacketRouter
 public:
 	PacketRouter() = delete;
 	PacketRouter(PacketTransceiver& packetTr);
-	void connect(IPacketEndpoint& packetEndpoint, uchar packetType);
-	void disconnect(IPacketEndpoint& packetEndpoint, uchar packetType);
-	void send(std::vector<uchar> packet, uchar packetType);
-	virtual void routePacket(std::vector<uchar> packet);
+	void connect(IPacketEndpoint& packetEndpoint, uint8_t packetType);
+	void send(std::vector<uint8_t> packet, uint8_t packetType);
+	virtual void routePacket(std::vector<uint8_t> packet);
 private:
-	std::map<uchar, IPacketEndpoint*> endpointMap;
+	std::map<uint8_t, IPacketEndpoint*> endpointMap;
 	std::mutex endpointMapMutex;
 	PacketTransceiver* packetTransceiver;
 };

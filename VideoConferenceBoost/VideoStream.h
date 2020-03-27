@@ -7,7 +7,7 @@ class VideoStream : public sf::Drawable, public sf::Transformable, public IPacke
 {
 public:
 	VideoStream();
-	virtual void handlePacket(const std::vector<uchar> packet, uchar packetType);
+	virtual void handlePacket(const std::vector<uint8_t> packet, uint8_t packetType);
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 	sf::Image videoImage;

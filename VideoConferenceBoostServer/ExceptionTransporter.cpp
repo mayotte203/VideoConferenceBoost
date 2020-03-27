@@ -17,7 +17,7 @@ namespace ExceptionTransporter
 		exceptionQueue.pop();
 		return result;
 	}
-	
+
 	bool ExceptionTransporter::isEmpty()
 	{
 		std::scoped_lock lock(exceptionQueueMutex);
