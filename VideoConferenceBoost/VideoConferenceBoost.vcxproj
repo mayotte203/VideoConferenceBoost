@@ -155,6 +155,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ExceptionTransporter.cpp" />
+    <ClCompile Include="GUIButton.cpp" />
+    <ClCompile Include="GUIElement.cpp" />
+    <ClCompile Include="GUITextField.cpp" />
     <ClCompile Include="IPacketEndpoint.cpp" />
     <ClCompile Include="IPacketRouter.cpp" />
     <ClCompile Include="main.cpp" />
@@ -167,6 +170,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionTransporter.h" />
+    <ClInclude Include="GUIButton.h" />
+    <ClInclude Include="GUIElement.h" />
+    <ClInclude Include="GUITextField.h" />
     <ClInclude Include="IPacketEndpoint.h" />
     <ClInclude Include="IPacketRouter.h" />
     <ClInclude Include="MicrophoneRecorder.h" />
