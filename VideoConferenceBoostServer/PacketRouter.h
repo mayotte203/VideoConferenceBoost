@@ -10,12 +10,11 @@ class PacketRouter : public IPacketRouter
 {
 public:
 	PacketRouter();
-	int connectSource(PacketTransceiver& packetTransceiver);
-	void send(int destinationID, std::vector<uint8_t> packet, uint8_t packetType);
-	virtual void routePacket(int sourceID, std::vector<uint8_t> packet);
+	void connectSource(PacketTransceiver& packetTransceiver);
+	//void send(int destinationID, std::vector<uint8_t> packet, uint8_t packetType);
+	virtual void routePacket(const PacketTransceiver& packetTransceiver, std::vector<uint8_t> packet);
 private:
-	static int nextID;
-	std::map<int, PacketTransceiver*> sourceMap;
+	std::list<PacketTransceiver*> packetTransceiverList;
 	std::mutex sourceMapMutex;
 };
 

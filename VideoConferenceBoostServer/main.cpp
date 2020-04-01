@@ -24,20 +24,29 @@ int main()
     PacketRouter packetRouter;
     for (size_t i = 0; i < CLIENT_MAX_COUNT; ++i)
     {
-        packetTransceiverArr[i].connectRouter(packetRouter.connectSource(packetTransceiverArr[i]), packetRouter);
+        packetTransceiverArr[i].connectRouter(packetRouter);
+        packetRouter.connectSource(packetTransceiverArr[i]);
     }
     while (true)
     {
         while (!ExceptionTransporter::isEmpty())
         {
             auto excepetionPair = ExceptionTransporter::retrieveException();
-            std::cout << excepetionPair.second.what() << std::endl;
+            if (strcmp(excepetionPair.second.what(), "Connection Aborted") == 0)
+            {
+                for (int i = 0; i < CLIENT_MAX_COUNT; ++i)
+                {
+                    if (excepetionPair.first == &packetTransceiverArr[i])
+                    {
+                        packetTransceiverArr[i].disconnect();
+                    }
+                }
+            }
         }
         for (size_t i = 0; i < CLIENT_MAX_COUNT; ++i)
         {
             if (!packetTransceiverArr[i].isConnected())
             {
-                packetTransceiverArr[i].disconnect();
                 acceptor.accept(socket);
                 packetTransceiverArr[i].connect(std::move(socket));
             }

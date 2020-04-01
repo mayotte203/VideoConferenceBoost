@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VideoConferenceBoost", "Vid
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VideoConferenceBoostServer", "VideoConferenceBoostServer\VideoConferenceBoostServer.vcxproj", "{E5492FB8-754A-44CD-A03E-69AD033A0A89}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VideoConferenceBoostLib", "VideoConferenceBoostLib\VideoConferenceBoostLib.vcxproj", "{7E0523A4-9016-44AF-A790-F22CD9FFE614}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{E5492FB8-754A-44CD-A03E-69AD033A0A89}.Release|x64.Build.0 = Release|x64
 		{E5492FB8-754A-44CD-A03E-69AD033A0A89}.Release|x86.ActiveCfg = Release|Win32
 		{E5492FB8-754A-44CD-A03E-69AD033A0A89}.Release|x86.Build.0 = Release|Win32
+		{7E0523A4-9016-44AF-A790-F22CD9FFE614}.Debug|x64.ActiveCfg = Debug|x64
+		{7E0523A4-9016-44AF-A790-F22CD9FFE614}.Debug|x64.Build.0 = Debug|x64
+		{7E0523A4-9016-44AF-A790-F22CD9FFE614}.Debug|x86.ActiveCfg = Debug|Win32
+		{7E0523A4-9016-44AF-A790-F22CD9FFE614}.Debug|x86.Build.0 = Debug|Win32
+		{7E0523A4-9016-44AF-A790-F22CD9FFE614}.Release|x64.ActiveCfg = Release|x64
+		{7E0523A4-9016-44AF-A790-F22CD9FFE614}.Release|x64.Build.0 = Release|x64
+		{7E0523A4-9016-44AF-A790-F22CD9FFE614}.Release|x86.ActiveCfg = Release|Win32
+		{7E0523A4-9016-44AF-A790-F22CD9FFE614}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

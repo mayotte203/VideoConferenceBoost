@@ -12,17 +12,22 @@ class PacketTransceiver
 {
 public:
 	PacketTransceiver();
+	PacketTransceiver(PacketTransceiver&&);
+	PacketTransceiver(const PacketTransceiver&) = delete;
 	~PacketTransceiver();
+	PacketTransceiver& operator= (const PacketTransceiver&) = delete;
+	PacketTransceiver& operator= (PacketTransceiver&&);
+
 	void connect(boost::asio::ip::tcp::socket&& socket);
 	void disconnect();
 	void sendPacket(std::vector<uint8_t> packet);
-	void connectRouter(int ID, IPacketRouter& packetRouter);
+	void connectRouter(IPacketRouter& packetRouter);
 	bool isConnected();
 private:
 	static constexpr size_t RECEVIER_BUF_SIZE = 512 * 1024;
 	boost::asio::ip::tcp::socket* socket = nullptr;
+
 	IPacketRouter* packetRouter = nullptr;
-	int ID = 0;
 	std::condition_variable receiverCondition;
 	std::condition_variable senderCondition;
 	std::thread senderThread;

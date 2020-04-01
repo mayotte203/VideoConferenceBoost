@@ -15,7 +15,7 @@ public:
 	PacketRouter(PacketTransceiver& packetTr);
 	void connect(IPacketEndpoint& packetEndpoint, uint8_t packetType);
 	void send(std::vector<uint8_t> packet, uint8_t packetType);
-	virtual void routePacket(std::vector<uint8_t> packet);
+	virtual void routePacket(const PacketTransceiver& packetTransceiver, std::vector<uint8_t> packet);
 private:
 	std::map<uint8_t, IPacketEndpoint*> endpointMap;
 	std::mutex endpointMapMutex;

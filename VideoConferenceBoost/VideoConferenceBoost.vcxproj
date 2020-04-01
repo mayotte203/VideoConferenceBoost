@@ -54,8 +54,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
+  <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -87,7 +86,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -103,7 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\boost_1_72_0;D:\Projects\SFML-2.5.1-x64\include;D:\Projects\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\boost_1_72_0;D:\Projects\SFML-2.5.1-x64\include;D:\Projects\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -121,7 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\opencv\build\include;D:\Projects\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\opencv\build\include;D:\Projects\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -141,7 +140,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\boost_1_72_0;D:\Projects\opencv\build\include;D:\Projects\SFML-2.5.1-x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\boost_1_72_0;D:\Projects\opencv\build\include;D:\Projects\SFML-2.5.1-x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -154,34 +153,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ExceptionTransporter.cpp" />
     <ClCompile Include="GUIButton.cpp" />
     <ClCompile Include="GUIElement.cpp" />
     <ClCompile Include="GUITextField.cpp" />
-    <ClCompile Include="IPacketEndpoint.cpp" />
-    <ClCompile Include="IPacketRouter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MicrophoneRecorder.cpp" />
     <ClCompile Include="MicrophoneStream.cpp" />
     <ClCompile Include="PacketRouter.cpp" />
-    <ClCompile Include="PacketTransceiver.cpp" />
     <ClCompile Include="VideoRecorder.cpp" />
     <ClCompile Include="VideoStream.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ExceptionTransporter.h" />
     <ClInclude Include="GUIButton.h" />
     <ClInclude Include="GUIElement.h" />
     <ClInclude Include="GUITextField.h" />
     <ClInclude Include="IPacketEndpoint.h" />
-    <ClInclude Include="IPacketRouter.h" />
     <ClInclude Include="MicrophoneRecorder.h" />
     <ClInclude Include="MicrophoneStream.h" />
     <ClInclude Include="PacketRouter.h" />
-    <ClInclude Include="PacketTransceiver.h" />
-    <ClInclude Include="types.h" />
     <ClInclude Include="VideoRecorder.h" />
     <ClInclude Include="VideoStream.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VideoConferenceBoostLib\VideoConferenceBoostLib.vcxproj">
+      <Project>{7e0523a4-9016-44af-a790-f22cd9ffe614}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

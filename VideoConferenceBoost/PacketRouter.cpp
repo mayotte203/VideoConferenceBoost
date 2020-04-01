@@ -19,7 +19,7 @@ void PacketRouter::send(std::vector<uint8_t> packet, uint8_t packetType)
 	packetTransceiver->sendPacket(std::move(packet));
 }
 
-void PacketRouter::routePacket(std::vector<uint8_t> packet)
+void PacketRouter::routePacket(const PacketTransceiver& packetTransceiver, std::vector<uint8_t> packet)
 {
     uint8_t packetType = packet.back();
     packet.pop_back();

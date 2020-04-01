@@ -1,10 +1,13 @@
 #include "ExceptionTransporter.h"
+#include <queue>
+#include <mutex>
+
 namespace ExceptionTransporter
 {
 	std::queue<std::pair<void*, std::exception>> exceptionQueue;
 	std::mutex exceptionQueueMutex;
 
-	void ExceptionTransporter::throwException(void* invoker, std::exception exception)
+	void ExceptionTransporter::transportException(void* invoker, std::exception exception)
 	{
 		std::scoped_lock lock(exceptionQueueMutex);
 		exceptionQueue.push(std::pair(invoker, exception));
@@ -17,11 +20,10 @@ namespace ExceptionTransporter
 		exceptionQueue.pop();
 		return result;
 	}
-	
+
 	bool ExceptionTransporter::isEmpty()
 	{
 		std::scoped_lock lock(exceptionQueueMutex);
 		return exceptionQueue.empty();
 	}
-
 }

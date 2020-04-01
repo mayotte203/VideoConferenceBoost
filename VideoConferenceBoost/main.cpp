@@ -28,13 +28,11 @@ boost::asio::io_service ioservice;
 
 sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "VideoConference");
 
-PacketTransceiver packetTransceiver(ioservice);
+PacketTransceiver packetTransceiver;
 PacketRouter packetRouter(packetTransceiver);
 MicrophoneStream microphoneStream;
 VideoStream videoStream;
 VideoRecorder videoRecorder(packetRouter);
-//packetTransceiver.connect(boost::asio::ip::address::from_string("192.168.0.102"), 50005);
-
 
 sf::Font font;
 sf::Text statusText;
@@ -57,7 +55,11 @@ void connect()
             std::string ipString = std::string(addressString, 0, addressString.find_first_of(":"));
             std::string portString = std::string(addressString, addressString.find_first_of(":") + 1);
             boost::asio::ip::address ip = boost::asio::ip::address::from_string(ipString);
-            packetTransceiver.connect(ip, std::stoi(portString));
+            boost::asio::ip::tcp::socket socket(ioservice);
+            boost::asio::ip::tcp::endpoint ep(ip, std::stoi(portString));
+            socket.open(boost::asio::ip::tcp::v4());
+            socket.connect(ep);
+            packetTransceiver.connect(std::move(socket));
             state = State::Connected;
             statusText.setString("Connected");
             statusText.setFillColor(sf::Color::Green);
