@@ -7,21 +7,9 @@ PacketTransceiver::PacketTransceiver()
 
 }
 
-PacketTransceiver::PacketTransceiver(PacketTransceiver&& that)
-{
-    // TODO
-}
-
 PacketTransceiver::~PacketTransceiver()
 {
     disconnect();
-}
-
-PacketTransceiver& PacketTransceiver::operator=(PacketTransceiver&&)
-{
-    // TODO: вставьте здесь оператор return
-    PacketTransceiver* x = new PacketTransceiver();
-    return *x;
 }
 
 void PacketTransceiver::connect(boost::asio::ip::tcp::socket&& socket)

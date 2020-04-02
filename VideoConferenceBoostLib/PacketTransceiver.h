@@ -11,11 +11,11 @@ class PacketTransceiver
 {
 public:
 	PacketTransceiver();
-	PacketTransceiver(PacketTransceiver&&);
+	PacketTransceiver(PacketTransceiver&&) = delete;
 	PacketTransceiver(const PacketTransceiver&) = delete;
 	~PacketTransceiver();
 	PacketTransceiver& operator= (const PacketTransceiver&) = delete;
-	PacketTransceiver& operator= (PacketTransceiver&&);
+	PacketTransceiver& operator= (PacketTransceiver&&) = delete;
 
 	void connect(boost::asio::ip::tcp::socket&& socket);
 	void disconnect();
