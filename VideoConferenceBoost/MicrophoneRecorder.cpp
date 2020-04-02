@@ -1,4 +1,5 @@
 #include "MicrophoneRecorder.h"
+#include "types.h"
 
 MicrophoneRecorder::MicrophoneRecorder(PacketRouter& packetRouter)
 {

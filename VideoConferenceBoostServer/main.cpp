@@ -1,9 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <boost/asio.hpp>
 #include <iostream>
-#include <thread>
-#include <mutex>
-#include <shared_mutex>
 #include <vector> 
 #include "PacketTransceiver.h"
 #include "PacketRouter.h"

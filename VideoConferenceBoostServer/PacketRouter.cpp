@@ -1,5 +1,4 @@
 #include "PacketRouter.h"
-#include <algorithm>
 
 PacketRouter::PacketRouter()
 {

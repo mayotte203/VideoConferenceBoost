@@ -6,7 +6,6 @@
 #include <queue>
 #include <condition_variable>
 #include "IPacketRouter.h"
-#include "ExceptionTransporter.h"
 
 class PacketTransceiver
 {

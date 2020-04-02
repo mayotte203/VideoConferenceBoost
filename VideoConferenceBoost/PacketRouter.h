@@ -5,7 +5,6 @@
 #include <mutex>
 #include "PacketTransceiver.h"
 #include "IPacketEndpoint.h"
-#include "types.h"
 #include "IPacketRouter.h"
 
 class PacketRouter : public IPacketRouter

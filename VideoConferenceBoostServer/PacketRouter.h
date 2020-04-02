@@ -1,7 +1,5 @@
 #pragma once
 #include <vector>
-#include <map>
-#include <thread>
 #include <mutex>
 #include "PacketTransceiver.h"
 #include "IPacketRouter.h"

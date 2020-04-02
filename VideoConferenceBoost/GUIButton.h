@@ -1,5 +1,4 @@
-#pragma once
-#include <SFML/Graphics.hpp>
+#pragma once 
 #include "GUIElement.h"
 
 class GUIButton : public GUIElement
