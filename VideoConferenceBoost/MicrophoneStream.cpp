@@ -5,6 +5,13 @@ MicrophoneStream::MicrophoneStream()
 	initialize(1, 44100);
 }
 
+void MicrophoneStream::setSampleRate(unsigned int sampleRate)
+{
+	stop();
+	initialize(1, sampleRate);
+	play();
+}
+
 void MicrophoneStream::addSamples(std::vector<uint8_t> samples)
 {
 	std::scoped_lock<std::mutex> lock(samplesQueueMutex);
@@ -42,4 +49,5 @@ bool MicrophoneStream::onGetData(Chunk& data)
 
 void MicrophoneStream::onSeek(sf::Time timeOffset)
 {
+	//ignore seek
 }

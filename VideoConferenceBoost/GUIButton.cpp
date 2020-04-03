@@ -10,7 +10,7 @@ GUIButton::GUIButton()
 	buttonRectangle.setFillColor(sf::Color::White);
 }
 
-void GUIButton::setCallbackFunction(void(*callbackFunction)(void))
+void GUIButton::setCallbackFunction(std::function<void()> callbackFunction)
 {
 	this->callbackFunction = callbackFunction;
 }

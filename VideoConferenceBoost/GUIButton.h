@@ -1,17 +1,19 @@
 #pragma once 
 #include "GUIElement.h"
+#include <functional>
 
 class GUIButton : public GUIElement
 {
 public:
 	GUIButton();
-	void setCallbackFunction(void (*callbackFunction)(void));
+	void setCallbackFunction(std::function<void()> callbackFunction);
 	virtual void updateEvent(sf::Event& event);
 	void setSize(const sf::Vector2f& size);
 	void setPosition(const sf::Vector2f& position);
 	void setString(const sf::String& string);
 private:
-	void (*callbackFunction)(void) = nullptr;
+	//void (*callbackFunction)(void) = nullptr;
+	std::function<void()> callbackFunction;
 	sf::Vector2f size;
 	sf::Vector2f position;
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
