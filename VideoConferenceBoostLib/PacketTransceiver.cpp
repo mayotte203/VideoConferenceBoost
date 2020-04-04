@@ -105,7 +105,6 @@ void PacketTransceiver::receiverThreadFunction()
     size_t bufReceiveSize = 0;
     size_t packetSize = 0;
     size_t receiveSize = 0;
-    std::unique_lock<std::mutex> receiverLock(receiverMutex, std::defer_lock);
     while (connected)
     {
         try
@@ -127,11 +126,12 @@ void PacketTransceiver::receiverThreadFunction()
             bufReceiveSize = 0;
         }
         size_t skipBytes = 0;
-        while (bufReceiveSize > skipBytes + packetSize + sizeof(size_t))
+        while (bufReceiveSize >= skipBytes + packetSize + sizeof(size_t))
         {
             if (packetRouter != nullptr)
                 packetRouter->routePacket(*this, std::vector<uint8_t>(receiveBuf + skipBytes + sizeof(size_t), receiveBuf + skipBytes + sizeof(size_t) + packetSize));
             skipBytes += packetSize + sizeof(size_t);
+            if(bufReceiveSize > skipBytes + packetSize + sizeof(size_t))
             packetSize = *(reinterpret_cast<size_t*>(receiveBuf + skipBytes));
         }
         if (skipBytes > 0)

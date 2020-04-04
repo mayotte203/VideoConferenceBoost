@@ -3,8 +3,6 @@
 #include <sfml/Graphics.hpp>
 #include <thread>
 #include <mutex>
-#include <vector>
-#include "types.h"
 #include "PacketRouter.h"
 
 #define SINGLE_PC
@@ -15,6 +13,7 @@ public:
 	VideoRecorder() = delete;
 	VideoRecorder(PacketRouter& packetRouter);
 	~VideoRecorder();
+	sf::Vector2u getImageSize();
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 	PacketRouter* packetRouter;

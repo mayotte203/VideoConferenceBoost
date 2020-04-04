@@ -31,6 +31,8 @@ public:
 private:
 	constexpr static unsigned int WINDOW_WIDTH = 1280;
 	constexpr static unsigned int WINDOW_HEIGHT = 720;
+	constexpr static unsigned int MIN_WINDOW_WIDTH = 1280;
+	constexpr static unsigned int MIN_WINDOW_HEIGHT = 720;
 	constexpr static std::string_view WINDOW_TITLE = "VideoConference";
 	
 	enum class State { Connected, NotConnected };
@@ -48,6 +50,7 @@ private:
 	boost::asio::io_service ioservice;
 
 	sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE.data());
+	void resizeWindow(unsigned int width, unsigned int height);
 	sf::Font font;
 	sf::Text statusText;
 	sf::Text lastErrorText;
@@ -59,7 +62,8 @@ private:
 	MicrophoneStream microphoneStream;
 	VideoStream videoStream;
 	VideoRecorder videoRecorder = VideoRecorder(packetRouter);
-	MicrophoneRecorder microphoneRecorder = MicrophoneRecorder(packetRouter);
+	MicrophoneRecorder* microphoneRecorder = nullptr;
+	void sendSetup();
 
 	GUIButton connectButton;
 	GUIButton disconnectButton;

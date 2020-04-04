@@ -26,7 +26,14 @@ void PacketRouter::routePacket(const PacketTransceiver& packetTransceiver, std::
     endpointMapMutex.lock();
     if (endpointMap[packetType] != nullptr)
     {
-        endpointMap[packetType]->handlePacket(packet, packetType);
+        if (packetType == 0x02)
+        {
+            endpointMap[packetType]->handlePacket(packet, packetType);
+        }
+        else
+        {
+            endpointMap[packetType]->handlePacket(packet, packetType);
+        }
     }
     endpointMapMutex.unlock();
 }

@@ -6,11 +6,13 @@ namespace ExceptionTransporter
 {
 	std::queue<std::pair<void*, std::exception>> exceptionQueue;
 	std::mutex exceptionQueueMutex;
+	std::condition_variable exceptionReadyCondition;
 
 	void ExceptionTransporter::transportException(void* invoker, std::exception exception)
 	{
 		std::scoped_lock lock(exceptionQueueMutex);
 		exceptionQueue.push(std::pair(invoker, exception));
+		exceptionReadyCondition.notify_all();
 	}
 
 	std::pair<void*, std::exception> ExceptionTransporter::retrieveException()
@@ -25,5 +27,9 @@ namespace ExceptionTransporter
 	{
 		std::scoped_lock lock(exceptionQueueMutex);
 		return exceptionQueue.empty();
+	}
+	std::condition_variable* getReadyCondition()
+	{
+		return &exceptionReadyCondition;
 	}
 }

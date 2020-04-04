@@ -10,7 +10,7 @@ public:
 	bool isActive();
 	virtual void updateEvent(sf::Event& event) = 0;
 private:
-	bool focus;
-	bool active;
+	bool focus = false;
+	bool active = false;
 };
 

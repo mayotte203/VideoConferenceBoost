@@ -5,8 +5,8 @@ VideoStream::VideoStream()
 {
 	videoImage.create(640, 480);//TODO Redo initialization
 	videoTexture.loadFromImage(videoImage);
+	videoTexture.setSmooth(true);
 	videoSprite.setTexture(videoTexture);
-	videoSprite.setPosition(640, 0);//TODO Do this outside
 }
 
 void VideoStream::handlePacket(const std::vector<uint8_t> packet, uint8_t packetType)
@@ -16,8 +16,13 @@ void VideoStream::handlePacket(const std::vector<uint8_t> packet, uint8_t packet
 	cv::cvtColor(frameRGB, frameRGBA, cv::COLOR_BGR2RGBA);
 	videoImage.create(frameRGBA.cols, frameRGBA.rows, frameRGBA.ptr());
 	videoTextureMutex.lock();
-	videoTexture.update(videoImage);
+	videoTexture.loadFromImage(videoImage);
 	videoTextureMutex.unlock();
+}
+
+sf::Vector2u VideoStream::getImageSize()
+{
+	return videoImage.getSize();
 }
 
 void VideoStream::draw(sf::RenderTarget& target, sf::RenderStates states) const

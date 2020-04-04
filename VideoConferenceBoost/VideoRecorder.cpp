@@ -1,4 +1,6 @@
 #include "VideoRecorder.h"
+#include <vector>
+#include "types.h"
 
 VideoRecorder::VideoRecorder(PacketRouter& packetRouter)
 {
@@ -15,6 +17,7 @@ VideoRecorder::VideoRecorder(PacketRouter& packetRouter)
 #endif // SINGLE_PC
 
 	videoTexture.loadFromImage(videoImage);
+	videoTexture.setSmooth(true);
 	videoSprite.setTexture(videoTexture);
 	
 	videoRecorderThread = std::thread(&VideoRecorder::videoRecorderThreadFunction, this);
@@ -27,6 +30,11 @@ VideoRecorder::~VideoRecorder()
 	{
 		videoRecorderThread.join();
 	}
+}
+
+sf::Vector2u VideoRecorder::getImageSize()
+{
+	return videoImage.getSize();
 }
 
 void VideoRecorder::draw(sf::RenderTarget& target, sf::RenderStates states) const

@@ -12,7 +12,6 @@ public:
 	void setPosition(const sf::Vector2f& position);
 	void setString(const sf::String& string);
 private:
-	//void (*callbackFunction)(void) = nullptr;
 	std::function<void()> callbackFunction;
 	sf::Vector2f size;
 	sf::Vector2f position;

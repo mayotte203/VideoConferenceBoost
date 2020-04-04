@@ -3,10 +3,8 @@
 #include <vector>
 #include <queue>
 #include <mutex>
-#include <iostream>
 #include "IPacketEndpoint.h"
 #include "PacketRouter.h"
-#include "types.h"
 
 class MicrophoneStream : public sf::SoundStream, public IPacketEndpoint
 {

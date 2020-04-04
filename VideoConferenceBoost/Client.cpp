@@ -34,18 +34,45 @@ Client::Client()
     portTextField.setSize(sf::Vector2f(130, 50));
     portTextField.setGhostString("Port");
 
+    videoStream.setPosition(640, 0);
+
     packetRouter.connect(microphoneStream, PacketType::Sound);
     packetRouter.connect(videoStream, PacketType::Image);
     packetRouter.connect(*this, PacketType::Server);
+    packetRouter.connect(*this, PacketType::Setup);
+    if (sf::SoundRecorder::isAvailable())
+    {
+        microphoneRecorder = new MicrophoneRecorder(packetRouter);
+    }
+    else
+    {
+        MessageBox(
+            NULL,
+            (LPCWSTR)L"No audio input device found",
+            (LPCWSTR)L"Audio will not be recorded",
+            MB_ICONWARNING | IDOK
+        );
+    }   
 }
 
 Client::~Client()
 {
+    if (microphoneRecorder != nullptr)
+    {
+        delete microphoneRecorder;
+    }
+    if (packetTransceiver.isConnected())
+    {
+        packetTransceiver.disconnect();
+    }
 }
 
 void Client::start()
 {
-    microphoneRecorder.start();
+    if (microphoneRecorder != nullptr)
+    {
+        microphoneRecorder->start();
+    }
 
     myClock.restart();
     while (window.isOpen())
@@ -53,8 +80,19 @@ void Client::start()
         sf::Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
+            switch (event.type)
+            {
+            case sf::Event::Closed:
+            {
                 window.close();
+                break;
+            }
+            case sf::Event::Resized:
+            {
+                resizeWindow(event.size.width, event.size.height);
+                break;
+            }
+            }
             try
             {
                 connectButton.updateEvent(event);
@@ -115,16 +153,29 @@ void Client::handlePacket(const std::vector<uint8_t> packet, uint8_t packetType)
     {
     case PacketType::Server:
     {
-        switch (packet[0])
+        switch (packet.back())
         {
         case PacketType::ServerType::ClientConnected:
         {
             serverStatus = ServerStatus::ClientConnected;
+            sendSetup();
             break;
         }
         case PacketType::ServerType::ClientDisconnected:
         {
             serverStatus = ServerStatus::ClientDisconnected;
+            break;
+        }
+        }
+        break;
+    }
+    case PacketType::Setup:
+    {
+        switch (packet.back())
+        {
+        case PacketType::SetupType::SampleRate:
+        {
+            microphoneStream.setSampleRate(*(reinterpret_cast<const unsigned int*>(packet.data())));
             break;
         }
         }
@@ -168,11 +219,11 @@ void Client::connect()
             ip = boost::asio::ip::address::from_string(ipString);
             port = std::stoi(portString);
         }
-        catch (std::exception exception)
+        catch (boost::system::system_error exception)
         {
             throw(std::exception("Invalid IP"));
         }
-        catch (boost::system::system_error exception)
+        catch (std::exception exception)
         {
             throw(std::exception("Invalid IP"));
         }
@@ -212,4 +263,55 @@ void Client::setStatus(const std::string& status,const sf::Color& color)
 void Client::setLastError(const std::string& lastError)
 {
     lastErrorText.setString(lastError);
+}
+
+void Client::resizeWindow(unsigned int width, unsigned int height)
+{
+    width = width > MIN_WINDOW_WIDTH ? width : MIN_WINDOW_WIDTH;
+    height = height > MIN_WINDOW_HEIGHT ? height : MIN_WINDOW_HEIGHT;
+    window.setSize(sf::Vector2u(width, height));
+    window.setView(sf::View(sf::Vector2f(width / 2.0f, height / 2.0f), sf::Vector2f(width, height)));
+
+    float videoStreamScale = std::min((width * 0.5f) / static_cast<float> (videoStream.getImageSize().x),
+                                        (height * 0.7f) / static_cast<float> (videoStream.getImageSize().y));
+    videoStream.setScale(videoStreamScale, videoStreamScale);
+    videoStream.setPosition(width * 0.5f + (width * 0.5f - (videoStream.getImageSize().x * videoStreamScale)) * 0.5f, 0);
+    float videoRecorderScale = std::min((width * 0.5f) / static_cast<float> (videoRecorder.getImageSize().x),
+        (height * 0.7f) / static_cast<float> (videoRecorder.getImageSize().y));
+    videoRecorder.setScale(videoRecorderScale, videoRecorderScale);
+    videoRecorder.setPosition((width * 0.5f - (videoRecorder.getImageSize().x * videoStreamScale)) * 0.5f, 0);
+
+    connectButton.setSize(sf::Vector2f(200.0f / 1280.0f * width, 50.0f / 720.0f * height));
+    connectButton.setPosition(sf::Vector2f(50.0f / 1280.0f * width, 650.0f / 720.0f * height));
+
+    disconnectButton.setSize(sf::Vector2f(250.0f / 1280.0f * width, 50.0f / 720.0f * height));
+    disconnectButton.setPosition(sf::Vector2f(300.0f / 1280.0f * width, 650.0f / 720.0f * height));
+
+    addressTextField.setSize(sf::Vector2f(300.0f / 1280.0f * width, 50.0f / 720.0f * height));
+    addressTextField.setPosition(sf::Vector2f(50.0f / 1280.0f * width, 580.0f / 720.0f * height));
+
+    portTextField.setSize(sf::Vector2f(180.0f / 1280.0f * width, 50.0f / 720.0f * height));
+    portTextField.setPosition(sf::Vector2f(370.0f / 1280.0f * width, 580.0f / 720.0f * height));
+
+    statusText.setCharacterSize(40.0f / 720.0f * height);
+    statusText.setPosition(50.0f / 1280.0f * width, 520.0f / 720.0f * height);
+
+    lastErrorText.setCharacterSize(20.0f / 720.0f * height);
+    lastErrorText.setPosition(800.0f / 1280.0f * width, 690.0f / 720.0f * height);
+}
+
+void Client::sendSetup()
+{
+    if (microphoneRecorder != nullptr)
+    {
+        std::vector<uint8_t> packet;
+        unsigned int sampleRate = microphoneRecorder->getSampleRate();
+        for (size_t i = 0; i < sizeof(unsigned int); ++i)
+        {
+            packet.push_back(reinterpret_cast<uint8_t*>(&sampleRate)[i]);
+        }
+        packet.push_back(PacketType::SetupType::SampleRate);
+        packet.push_back(PacketType::Setup);
+        packetTransceiver.sendPacket(packet);
+    }
 }
