@@ -5,11 +5,6 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <vector>
-#include <chrono>
-#include <ctime>
-#include <cmath>
-#include <random>
-#include "types.h"
 #include "IPacketEndpoint.h"
 #include "PacketTransceiver.h"
 #include "MicrophoneRecorder.h"
@@ -36,9 +31,14 @@ public:
 private:
 	constexpr static unsigned int WINDOW_WIDTH = 1280;
 	constexpr static unsigned int WINDOW_HEIGHT = 720;
-
+	constexpr static std::string_view WINDOW_TITLE = "VideoConference";
+	
 	enum class State { Connected, NotConnected };
 	State state = State::NotConnected;
+	void setState(State state);
+
+	enum class ServerStatus {ClientConnected, ClientDisconnected};
+	ServerStatus serverStatus = ServerStatus::ClientDisconnected;
 
 	void connect();
 	void disconnect();
@@ -47,7 +47,7 @@ private:
 
 	boost::asio::io_service ioservice;
 
-	sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "VideoConference");
+	sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE.data());
 	sf::Font font;
 	sf::Text statusText;
 	sf::Text lastErrorText;
@@ -64,5 +64,6 @@ private:
 	GUIButton connectButton;
 	GUIButton disconnectButton;
 	GUITextField addressTextField;
+	GUITextField portTextField;
 };
 

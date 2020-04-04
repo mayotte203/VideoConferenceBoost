@@ -1,14 +1,7 @@
 #include "Client.h"
+#include "types.h"
 
 Client::Client()
-{
-}
-
-Client::~Client()
-{
-}
-
-void Client::start()
 {
     font.loadFromFile("3966.ttf");
     statusText.setFillColor(sf::Color::Red);
@@ -34,12 +27,24 @@ void Client::start()
     disconnectButton.setString("Disconnect");
 
     addressTextField.setPosition(sf::Vector2f(50, 580));
-    addressTextField.setSize(sf::Vector2f(450, 50));
-    addressTextField.setGhostString("Enter address");
+    addressTextField.setSize(sf::Vector2f(300, 50));
+    addressTextField.setGhostString("IP");
+
+    portTextField.setPosition(sf::Vector2f(370, 580));
+    portTextField.setSize(sf::Vector2f(130, 50));
+    portTextField.setGhostString("Port");
 
     packetRouter.connect(microphoneStream, PacketType::Sound);
     packetRouter.connect(videoStream, PacketType::Image);
-    packetRouter.connect(*this, PacketType::System);
+    packetRouter.connect(*this, PacketType::Server);
+}
+
+Client::~Client()
+{
+}
+
+void Client::start()
+{
     microphoneRecorder.start();
 
     myClock.restart();
@@ -50,9 +55,17 @@ void Client::start()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            connectButton.updateEvent(event);
+            try
+            {
+                connectButton.updateEvent(event);
+            }
+            catch (std::exception exception)
+            {
+                setLastError(exception.what());
+            }
             disconnectButton.updateEvent(event);
             addressTextField.updateEvent(event);
+            portTextField.updateEvent(event);
         }
         while (!ExceptionTransporter::isEmpty())
         {
@@ -60,8 +73,7 @@ void Client::start()
             if (strcmp(excepetionPair.second.what(), "Connection Aborted") == 0)
             {
                 packetTransceiver.disconnect();
-                state = State::NotConnected;
-                setStatus("Not connected", sf::Color::Red);
+                setState(State::NotConnected);
                 setLastError("Connection aborted");
             }
         }
@@ -69,15 +81,27 @@ void Client::start()
         if (elapsedTime > sf::milliseconds(1000 / 30))
         {
             window.clear(sf::Color::White);
-            window.draw(videoRecorder);
-            if (state == State::Connected)
+            switch (state)
             {
-                window.draw(videoStream);
+            case State::Connected:
+            {
+                if (serverStatus == ServerStatus::ClientConnected)
+                {
+                    window.draw(videoStream);
+                }
+                break;
             }
+            case State::NotConnected:
+            {
+                break;
+            }
+            }
+            window.draw(videoRecorder);
             window.draw(connectButton);
             window.draw(disconnectButton);
             window.draw(statusText);
             window.draw(addressTextField);
+            window.draw(portTextField);
             window.draw(lastErrorText);
             window.display();
             elapsedTime -= sf::milliseconds(1000 / 30);
@@ -87,35 +111,85 @@ void Client::start()
 
 void Client::handlePacket(const std::vector<uint8_t> packet, uint8_t packetType)
 {
+    switch (packetType)
+    {
+    case PacketType::Server:
+    {
+        switch (packet[0])
+        {
+        case PacketType::ServerType::ClientConnected:
+        {
+            serverStatus = ServerStatus::ClientConnected;
+            break;
+        }
+        case PacketType::ServerType::ClientDisconnected:
+        {
+            serverStatus = ServerStatus::ClientDisconnected;
+            break;
+        }
+        }
+        break;
+    }
+    }
+}
+
+void Client::setState(State state)
+{
+    switch (state)
+    {
+    case State::Connected:
+    {
+        setStatus("Connected", sf::Color::Green);
+        break;
+    }
+    case State::NotConnected:
+    {
+        setStatus("Not connected", sf::Color::Red);
+        break;
+    }
+    }
+    this->state = state;
 }
 
 void Client::connect()
 {
     if (state == State::NotConnected)
     {
+        std::string ipString = addressTextField.getInputString();
+        std::string portString = portTextField.getInputString();
+        boost::asio::ip::address ip;
+        unsigned int port;
+        if (portString.size() > 5 || !std::all_of(portString.begin(), portString.end(), ::isdigit))
+        {
+            throw(std::exception("Invalid Port"));
+        }
         try
         {
-            std::string addressString = addressTextField.getInputString();
-            std::string ipString = std::string(addressString, 0, addressString.find_first_of(":"));
-            std::string portString = std::string(addressString, addressString.find_first_of(":") + 1);
-            boost::asio::ip::address ip = boost::asio::ip::address::from_string(ipString);
-            boost::asio::ip::tcp::socket socket(ioservice);
-            boost::asio::ip::tcp::endpoint ep(ip, std::stoi(portString));
-            socket.open(boost::asio::ip::tcp::v4());
-            socket.connect(ep);
-            packetTransceiver.connect(std::move(socket));
-            state = State::Connected;
-            setStatus("Connected", sf::Color::Green);
-            setLastError("");
-        }
-        catch (boost::system::system_error exception)
-        {
-            setLastError("Connection error");
+            ip = boost::asio::ip::address::from_string(ipString);
+            port = std::stoi(portString);
         }
         catch (std::exception exception)
         {
-            setLastError("Invalid IP-address");
+            throw(std::exception("Invalid IP"));
         }
+        catch (boost::system::system_error exception)
+        {
+            throw(std::exception("Invalid IP"));
+        }
+        try
+        {
+            boost::asio::ip::tcp::socket socket(ioservice);
+            boost::asio::ip::tcp::endpoint ep(ip, port);
+            socket.open(boost::asio::ip::tcp::v4());
+            socket.connect(ep);
+            packetTransceiver.connect(std::move(socket));
+        }
+        catch (boost::system::system_error exception)
+        {
+            throw(std::exception("Connection Error"));
+        }
+        setState(State::Connected);
+        setLastError("");
     }
 }
 
@@ -124,8 +198,7 @@ void Client::disconnect()
     if (state == State::Connected)
     {
         packetTransceiver.disconnect();
-        state = State::NotConnected;
-        setStatus("Not connected", sf::Color::Red);
+        setState(State::NotConnected);
     }
     setLastError("");
 }
