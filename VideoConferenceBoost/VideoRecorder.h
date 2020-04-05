@@ -5,7 +5,7 @@
 #include <mutex>
 #include "PacketRouter.h"
 
-#define SINGLE_PC
+//#define SINGLE_PC
 
 class VideoRecorder : public sf::Drawable, public sf::Transformable
 {

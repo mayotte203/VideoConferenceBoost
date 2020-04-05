@@ -10,14 +10,12 @@ PacketTransceiver::PacketTransceiver()
 PacketTransceiver::~PacketTransceiver()
 {
     disconnect();
+    delete socket;
 }
 
 void PacketTransceiver::connect(boost::asio::ip::tcp::socket&& socket)
 {
-    if (this->socket != nullptr)
-    {
-        delete this->socket;
-    }
+    delete this->socket;
     this->socket = new boost::asio::ip::tcp::socket(std::move(socket));
     connected = true;
     senderThread = std::thread(&PacketTransceiver::senderThreadFunction, this);

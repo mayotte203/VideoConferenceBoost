@@ -10,8 +10,16 @@ VideoRecorder::VideoRecorder(PacketRouter& packetRouter)
 	videoImage.create(640, 480);
 #else
 	webcamVC = cv::VideoCapture(0);
+	if (!webcamVC.isOpened())
+	{
+		throw(std::exception("Webcam Error"));
+	}
 	cv::Mat webcamMat, RGBAMat;
 	webcamVC.read(webcamMat);
+	if (webcamMat.empty())
+	{
+		throw(std::exception("Webcam Error"));
+	}
 	cv::cvtColor(webcamMat, RGBAMat, cv::COLOR_BGR2RGBA);
 	videoImage.create(RGBAMat.cols, RGBAMat.rows, RGBAMat.ptr());
 #endif // SINGLE_PC
@@ -84,7 +92,7 @@ void VideoRecorder::videoRecorderThreadFunction()
 #endif // SINGLE_PC	
 		packetRouter->send(std::move(jpegBuffer), PacketType::Image);
 		videoTextureMutex.lock();
-		videoTexture.update(videoImage);
+		videoTexture.loadFromImage(videoImage);
 		videoTextureMutex.unlock();
 	}
 #ifdef SINGLE_PC

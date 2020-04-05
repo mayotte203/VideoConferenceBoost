@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/Graphics.hpp>
 #include <opencv2/opencv.hpp>
 #include <iostream>
@@ -15,7 +14,6 @@
 #include "ExceptionTransporter.h"
 #include "GUIButton.h"
 #include "GUITextField.h"
-
 
 class Client : public IPacketEndpoint
 {
@@ -70,4 +68,3 @@ private:
 	GUITextField addressTextField;
 	GUITextField portTextField;
 };
-

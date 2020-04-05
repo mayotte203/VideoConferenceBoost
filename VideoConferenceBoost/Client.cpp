@@ -6,35 +6,23 @@ Client::Client()
     font.loadFromFile("3966.ttf");
     statusText.setFillColor(sf::Color::Red);
     statusText.setFont(font);
-    statusText.setCharacterSize(40);
-    statusText.setPosition(50, 520);
     statusText.setString("Not Connected");
 
     lastErrorText.setFillColor(sf::Color::Black);
     lastErrorText.setFont(font);
-    lastErrorText.setCharacterSize(20);
-    lastErrorText.setPosition(800, 690);
     lastErrorText.setString("");
 
-    connectButton.setSize(sf::Vector2f(200, 50));
-    connectButton.setPosition(sf::Vector2f(50, 650));
     connectButton.setCallbackFunction(std::bind(&Client::connect, this));
     connectButton.setString("Connect");
 
-    disconnectButton.setSize(sf::Vector2f(200, 50));
-    disconnectButton.setPosition(sf::Vector2f(300, 650));
     disconnectButton.setCallbackFunction(std::bind(&Client::disconnect, this));
     disconnectButton.setString("Disconnect");
 
-    addressTextField.setPosition(sf::Vector2f(50, 580));
-    addressTextField.setSize(sf::Vector2f(300, 50));
     addressTextField.setGhostString("IP");
 
-    portTextField.setPosition(sf::Vector2f(370, 580));
-    portTextField.setSize(sf::Vector2f(130, 50));
     portTextField.setGhostString("Port");
 
-    videoStream.setPosition(640, 0);
+    resizeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     packetRouter.connect(microphoneStream, PacketType::Sound);
     packetRouter.connect(videoStream, PacketType::Image);
@@ -57,10 +45,7 @@ Client::Client()
 
 Client::~Client()
 {
-    if (microphoneRecorder != nullptr)
-    {
-        delete microphoneRecorder;
-    }
+    delete microphoneRecorder;
     if (packetTransceiver.isConnected())
     {
         packetTransceiver.disconnect();
