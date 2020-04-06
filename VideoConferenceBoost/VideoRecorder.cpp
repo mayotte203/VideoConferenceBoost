@@ -1,6 +1,6 @@
 #include "VideoRecorder.h"
 #include <vector>
-#include "types.h"
+#include <types.h>
 
 VideoRecorder::VideoRecorder(PacketRouter& packetRouter)
 {

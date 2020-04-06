@@ -1,5 +1,5 @@
 #include "Client.h"
-#include "types.h"
+#include <types.h>
 
 Client::Client()
 {
@@ -32,15 +32,6 @@ Client::Client()
     {
         microphoneRecorder = new MicrophoneRecorder(packetRouter);
     }
-    else
-    {
-        MessageBox(
-            NULL,
-            (LPCWSTR)L"No audio input device found",
-            (LPCWSTR)L"Audio will not be recorded",
-            MB_ICONWARNING | IDOK
-        );
-    }   
 }
 
 Client::~Client()
@@ -101,7 +92,7 @@ void Client::start()
             }
         }
         elapsedTime += myClock.restart();
-        if (elapsedTime > sf::milliseconds(1000 / 30))
+        if (elapsedTime > sf::milliseconds(1000 / MAXIMUM_WINDOW_FPS))
         {
             window.clear(sf::Color::White);
             switch (state)
@@ -127,7 +118,7 @@ void Client::start()
             window.draw(portTextField);
             window.draw(lastErrorText);
             window.display();
-            elapsedTime -= sf::milliseconds(1000 / 30);
+            elapsedTime -= sf::milliseconds(1000 / MAXIMUM_WINDOW_FPS);
         }
     }
 }

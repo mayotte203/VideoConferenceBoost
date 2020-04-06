@@ -100,7 +100,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\tinyxml2-8.0.0;D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -116,13 +116,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\boost_1_72_0;D:\Projects\SFML-2.5.1-x64\include;D:\Projects\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\tinyxml2-8.0.0;D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\boost_1_72_0;D:\Projects\SFML-2.5.1-x64\include;D:\Projects\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Projects\boost_1_72_0\stage\lib;D:\Projects\opencv\build\x64\vc15\lib;D:\Projects\SFML-2.5.1-x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Projects\tinyxml2-8.0.0\tinyxml2\bin\tinyxml2\x64-Debug-Lib;D:\Projects\boost_1_72_0\stage\lib;D:\Projects\opencv\build\x64\vc15\lib;D:\Projects\SFML-2.5.1-x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-network-d.lib;sfml-system-d.lib;opencv_world420d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -134,7 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\opencv\build\include;D:\Projects\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\tinyxml2-8.0.0;D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\opencv\build\include;D:\Projects\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -154,7 +154,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\boost_1_72_0;D:\Projects\opencv\build\include;D:\Projects\SFML-2.5.1-x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\tinyxml2-8.0.0;D:\Projects\VideoConferenceBoost\VideoConferenceBoostLib;D:\Projects\boost_1_72_0;D:\Projects\opencv\build\include;D:\Projects\SFML-2.5.1-x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -162,7 +162,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Projects\boost_1_72_0\stage\lib;D:\Projects\opencv\build\x64\vc15\lib;D:\Projects\SFML-2.5.1-x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Projects\tinyxml2-8.0.0\tinyxml2\bin\tinyxml2\x64-Release-Lib;D:\Projects\boost_1_72_0\stage\lib;D:\Projects\opencv\build\x64\vc15\lib;D:\Projects\SFML-2.5.1-x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-audio.lib;sfml-network.lib;sfml-system.lib;opencv_world420.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

@@ -4,14 +4,14 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <vector>
+#include <PacketTransceiver.h>
+#include <ExceptionTransporter.h>
 #include "IPacketEndpoint.h"
-#include "PacketTransceiver.h"
 #include "MicrophoneRecorder.h"
 #include "MicrophoneStream.h"
 #include "PacketRouter.h"
 #include "VideoRecorder.h"
 #include "VideoStream.h"
-#include "ExceptionTransporter.h"
 #include "GUIButton.h"
 #include "GUITextField.h"
 
@@ -32,6 +32,7 @@ private:
 	constexpr static unsigned int MIN_WINDOW_WIDTH = 1280;
 	constexpr static unsigned int MIN_WINDOW_HEIGHT = 720;
 	constexpr static std::string_view WINDOW_TITLE = "VideoConference";
+	constexpr static unsigned int MAXIMUM_WINDOW_FPS = 30;
 	
 	enum class State { Connected, NotConnected };
 	State state = State::NotConnected;

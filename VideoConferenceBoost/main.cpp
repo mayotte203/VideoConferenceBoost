@@ -1,11 +1,11 @@
 #include "Client.h"
-#ifdef _DEBUG
+
+#if defined(_DEBUG) || !defined(_WIN32)
 int main()
 #else
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #endif
 {
-    system("chcp 1251 > nul");
     try
     {
         Client client;
@@ -15,12 +15,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
     {
         if (strcmp(exception.what(), "Webcam Error") == 0)
         {
-            MessageBox(
-                NULL,
-                (LPCWSTR)L"Webcam Error",
-                (LPCWSTR)L"Can't open webcam",
-                MB_ICONERROR | IDOK
-            );
             return 0;
         }
     }

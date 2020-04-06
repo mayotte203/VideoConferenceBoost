@@ -1,5 +1,5 @@
 #include "MicrophoneStream.h"
-#include "types.h"
+#include <types.h>
 
 MicrophoneStream::MicrophoneStream()
 {
